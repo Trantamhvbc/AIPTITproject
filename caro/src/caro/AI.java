@@ -15,10 +15,11 @@ public class AI {
     private int[][]  Cur ;
     private int val ;
     Cell nextAttaxkOne;
-
+    private long [][] F;
     public AI(int[][] Cur, int val) {
         this.Cur = Cur;
         this.val = val;
+       
     }
     long Pow(long a, int b){
         long S = 1;
@@ -136,7 +137,7 @@ public class AI {
                 else return 0;
             }
         }
-         i =  1;
+         i = 1;
          d = 0;
        while(row + i < 21 && col + i < 21 && i  <= parameterTop  ){
             if(Cur[row + i][col + i] == val ){
@@ -229,40 +230,41 @@ public class AI {
         S = S + Pow(50, findAttackFor(row, col));
         Cur[row][col] = val;
         val = (val + 1) % 2;
-       // if(row + 1 < 21 && Cur[row + 1][col ] == val){
-            int t = findSuportOne(row, col ,0, 4);
+         int t;
+        if(row + 1 < 21 && Cur[row + 1][col ] == val){
+            t = findSuportOne(row, col ,0, 4);
             S = S + Pow(50,t)+ 30 * Pow(50, t - 1)  ;
-        //}
+        }
             
-       // if(row - 1 > 0 && Cur[row + 1][col ] == val){
+        if(row - 1 > 0 && Cur[row + 1][col ] == val){
              t = findSuportOne(row, col ,0, 4);
             S = S + Pow(50,t)+ 30 * Pow(50, t - 1)  ;
-       // }
+        }
             
-        //if(col + 1 < 21 && Cur[row][col + 1] == val){
+        if(col + 1 < 21 && Cur[row][col + 1] == val){
              t = findSuportTwo(row, col, 0, 4);
             S = S + Pow(50,t)+ 30 * Pow(50, t - 1)  ;
-        //}
-        //if(col - 1  >0 && Cur[row][col - 1] == val){
+        }
+        if(col - 1  >0 && Cur[row][col - 1] == val){
              t = findSuportTwo(row, col, 4, 0);
             S = S + Pow(50,t)+ 30 * Pow(50, t - 1)  ;
-        //}
-      //  if(row + 1 < 21 && col + 1 < 21 && Cur[row + 1][col + 1] == val){
+        }
+        if(row + 1 < 21 && col + 1 < 21 && Cur[row + 1][col + 1] == val){
              t = findSuportThree(row, col, 0, 4);
             S = S + Pow(50,t)+ 30 * Pow(50, t - 1)  ;
-        //}
-        //if(row - 1 > 0 && col - 1 > 0 && Cur[row - 1][col - 1] == val){
+        }
+        if(row - 1 > 0 && col - 1 > 0 && Cur[row - 1][col - 1] == val){
              t = findSuportThree(row, col, 4, 0);
             S = S + Pow(50,t)+ 30 * Pow(50, t - 1)  ;
-        //} 
-        //if(row + 1 < 21 && col - 1 > 0 && Cur[row+1][col-1] == val){
+        } 
+        if(row + 1 < 21 && col - 1 > 0 && Cur[row+1][col-1] == val){
              t = findSuportFor(row, col, 0, 4);
             S = S + Pow(50,t)+ 30 * Pow(50, t - 1)  ;
-        //}
-        //if(row - 1 > 0 && col + 1 > 0 && Cur[row-1][col+1] == val){
+        }
+        if(row - 1 > 0 && col + 1 > 0 && Cur[row-1][col+1] == val){
              t = findSuportFor(row, col, 4, 0);
             S = S + Pow(50,t)+ 30 * Pow(50, t - 1)  ;
-        //}
+        }
         val = (val + 1) % 2;
         Cur[row ][col] = -1;
         return S;

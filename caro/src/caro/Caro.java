@@ -56,12 +56,15 @@ public class Caro extends Application {
     //    buttons[5][5].setFont( new Font("", size));
     //    buttons[5][5].setText("O");
     //    buttons[6][5].setText("O");
+        valueswar = 0;
+     //   buttons[10][10].setText("O");
+     //   table[10][10] = 1;
         stage.show();
     }
     public void createTable(){   
         buttons = new Button[22][22];
         table = new int[22][22]; 
-        paneTable= new GridPane();
+        paneTable = new GridPane();
       //  Frame J = new Frame();
         for(int i=1;i<=20;i++){
             for(int j=1;j<=20;j++){
@@ -85,7 +88,7 @@ public class Caro extends Application {
     }
     public void actionCell(int row, int collow){
         if(table[row][collow] != -1){
-        
+            
         }
         else{
             for(int  i = 1 ; i < 21 ;  i ++)
@@ -98,8 +101,10 @@ public class Caro extends Application {
             table[row][collow] = valueswar;
             valueswar = valueswar + 1;
             valueswar = valueswar % 2;
-            AI a = new AI(table, valueswar);
+            AI1 a = new AI1(table, 10);
             Cell next = a.NexAtack();
+            if(next == null){System.out.println("say ra ngoai le");}
+            else{
             int x = next.getRow();
             int y = next.getColumn();
             System.out.println("x O ca ro la: "+ x);
@@ -111,6 +116,7 @@ public class Caro extends Application {
             table[x][y] = valueswar;
             valueswar = valueswar + 1;
             valueswar = valueswar % 2;
+        }
         }
             
     }
