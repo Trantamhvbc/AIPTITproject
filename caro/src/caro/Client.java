@@ -17,6 +17,7 @@ import javafx.stage.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Random;
 
 public class Client extends Application {
@@ -30,14 +31,14 @@ public class Client extends Application {
     private int id,numberOfClickedButton;
     private boolean isPlaying;
     private int[][] table,p,pd;
-    private int maxRow = 16, maxCol = 16;
+    private int maxRow = 20, maxCol = 20;
     private Button[][] buttons;
     private ImageView imageView;
     public GridPane paneTable;
     private TextArea chatMessages,message;
     private ObservableList<String> imageList;
     private ChoiceBox<String> choiceBox;
-    private int BOT = 0, HUMAN = 1;
+    private int BOT = 1, HUMAN = 0;
     public static void main(String[] args) {
         launch(args);
     }
@@ -177,7 +178,7 @@ public class Client extends Application {
         for(int i=1;i<=maxRow;i++){
             for(int j=1;j<=maxCol;j++){
                 buttons[i][j] = new Button();
-                buttons[i][j].setPrefSize(40,40);
+                buttons[i][j].setPrefSize(50,50);
                 paneTable.add(buttons[i][j],j,i);
             }
         }
@@ -357,7 +358,7 @@ public class Client extends Application {
             for(int j=1;j<maxRow;j++) table[i][j] = -1;
         }
         for(int i=1;i<=maxRow;i++){
-            for(int j=1;j<=maxCol;j++) buttons[i][j].setText("");
+            for(int j=1;j<=maxCol;j++) buttons[i][j].setGraphic(null);
         }
         numberOfClickedButton = 0;
     }
@@ -405,7 +406,7 @@ public class Client extends Application {
         buttons = new Button[maxRow+2][maxCol+2];
         numberOfClickedButton = 0;
         buildGUIBot();
-        botPlay();
+        start();
     }
     public void buildGUIBot(){
         createTable();
@@ -448,7 +449,7 @@ public class Client extends Application {
             MessageBox.show("This cell has been ticked","Please tick another");
             return;
         }
-        buttons[row][col].setText("O");
+        buttons[row][col].setGraphic(new ImageView("image/o.png"));
         table[row][col] = HUMAN;
         numberOfClickedButton++;
         if(numberOfClickedButton >= 9){
@@ -456,6 +457,7 @@ public class Client extends Application {
 
                MessageBox.show("You won","Result");
                reset();
+               start();
            }
         }
         botPlay();
@@ -464,295 +466,35 @@ public class Client extends Application {
 
                 MessageBox.show("You loose","Result");
                 reset();
-                botPlay();
+                start();
             }
         }
+    }
+    public void start(){
+         Alert gameMode = new Alert(Alert.AlertType.CONFIRMATION);
+        gameMode.setTitle("Chọn người chơi trước");
+        gameMode.setHeaderText("Bạn có muốn chơi trước không ?");
+        Optional<ButtonType> result = gameMode.showAndWait();
+        if(result.get() == ButtonType.CANCEL){
+            botPlay();
+        }
+    
     }
     public void botPlay(){
         Cell nm = findNextMove();
         int row = nm.getRow(), col = nm.getColumn();
         table[row][col] = BOT;
-        buttons[row][col].setText("X");
+        buttons[row][col].setGraphic(new ImageView("image/x.png"));
         numberOfClickedButton++;
     }
     public Cell findNextMove(){
-        int maxPoint = 0;
-        ArrayList<Cell> curMax = new ArrayList();
-        for(int r = 1; r <= maxRow; r++){
-            for(int c = 1; c <= maxCol; c++){
-                if(table[r][c] != -1) continue;
-                findPointAttack(r, c, BOT);
-                findPointDefend(r, c, HUMAN);
-                if(p[r][c] > maxPoint){
-                    maxPoint = p[r][c];
-                    curMax.clear();
-                    curMax.add(new Cell(r, c));
-                }else{
-                    if(p[r][c] == maxPoint){
-                        curMax.add(new Cell(r, c));
-                    }
-                }
+            AI1 A = new AI1(table, 6);
+           
+            Cell cell = A.NexAtack();    
+            if(cell == null ){
+                System.out.println(111);
+                return new Cell(10,10);
             }
-        }
-        if(curMax.size() != 0){
-            int maxVal = -1;
-            ArrayList<Cell> finalList = new ArrayList<>();
-            for(Cell tmp: curMax){
-                if(sumAdjDef(tmp) > maxVal){
-                    maxVal = sumAdjDef(tmp);
-                    finalList.clear();
-                    finalList.add(tmp);
-                }else{
-                    if(sumAdjDef(tmp) == maxVal) finalList.add(tmp);
-                }
-            }
-            Random rd = new Random();
-            return finalList.get(rd.nextInt(finalList.size()));
-        }else{
-            return new Cell(8, 8);
-        }
-    }
-    public void findPointAttack(int r, int c, int bot){
-        table[r][c] = bot;
-        p[r][c] = -1;
-        int[] __ = new int[8];
-        for(int i = 1; i <= 7; i++) __[i] = 0;
-        __[find1(r, c, bot)]++;
-        __[find2(r, c, bot)]++;
-        __[find3(r, c, bot)]++;
-        __[find4(r, c, bot)]++;
-        table[r][c] = -1;
-        if(__[7] != 0) p[r][c] += 300000;
-        else{
-            if(__[6] != 0 || (__[5]*__[4] != 0)) p[r][c] += 150000;
-            else{
-                if(__[5] >= 2) p[r][c] = 60000;
-                else{
-                    p[r][c] += (__[5])*25000 + __[4]*25000 + __[3]*5 + __[2]*2;
-                }
-            }
-        }
-    }
-    public void findPointDefend(int r, int c, int human){
-        table[r][c] = human;
-        int[] __ = new int[8];
-        for(int i = 1; i <= 7; i++) __[i] = 0;
-        __[find1(r, c, human)]++;
-        __[find2(r, c, human)]++;
-        __[find3(r, c, human)]++;
-        __[find4(r, c, human)]++;
-        table[r][c] = -1;
-        if(__[7] != 0) {p[r][c] += 200000; pd[r][c] = 200000;}
-        else{
-            if(__[6] != 0 || (__[5]*__[4] != 0)) {p[r][c] += 100000;pd[r][c] = 100000;}
-            else{
-                if(__[5] >= 2) {p[r][c] = 20000; pd[r][c] = 20000;}
-                else{
-                    p[r][c] += __[5]*10+__[4]*8+__[3]*4+__[2];
-                    pd[r][c] = __[5]*10+__[4]*8+__[3]*4+__[2];
-                }
-            }
-        }
-    }
-    public int find1(int r, int c, int bot){
-        int point = 1, blockOut = 0, v = 0;
-        boolean emptyFlag = false;
-        for(int i = r-1, s = 1; s <= 4 && i >=1; i--, s++){
-            if(table[i][c] == bot){
-                point++;
-            }else{
-                if(table[i][c] != -1 || i < 1){
-                    if(table[i+1][c] != -1) {blockOut++;}
-                    else emptyFlag = false;
-                    break;
-                }else{
-                    if(emptyFlag){
-                        if(table[i+1][c] == -1) emptyFlag = false;
-                        break;
-                    }else{
-                        v = s-1;
-                        if(s < 4) emptyFlag = true;
-                    }
-                }
-            }
-        }
-        for(int i = r+1, s = 1; i <= maxRow && s <= 4; i++, s++){
-            if(table[i][c] == bot){
-                point++;
-                if(emptyFlag || v != 0) v++;
-            }else{
-                if(table[i][c] != -1 || i > maxRow){
-                    if(table[i-1][c] != -1) {blockOut++;}
-                    else emptyFlag = false;
-                    break;
-                }else{
-                    if(emptyFlag){
-                        if(table[i-1][c] == -1) emptyFlag = false;
-                        break;
-                    }else{
-                        if(s < 4) emptyFlag = true;
-                    }
-                }
-            }
-        }
-        return setRank(point, blockOut, emptyFlag, v, bot);
-    }
-    public int find2(int r, int c, int bot){
-        int point = 1, blockOut = 0, v = 0;
-        boolean emptyFlag = false;
-        for(int i = c-1, s = 1; s <= 4 && i >=1 ; i--, s++){
-            if(table[r][i] == bot){
-                point++;
-            }else{
-                if(table[r][i] != -1 || i < 1){
-                    if(table[r][i+1] != -1) {blockOut++;}
-                    else emptyFlag = false;
-                    break;
-                }else{
-                    if(emptyFlag){
-                        if(table[r][i+1] == -1) emptyFlag = false;
-                        break;
-                    }else{
-                        v = s-1;
-                        if(s < 4) emptyFlag = true;
-                    }
-                }
-            }
-        }
-        for(int i = c+1, s = 1; i <= maxRow && s <= 4; i++, s++){
-            if(table[r][i] == bot){
-                point++;
-                if(emptyFlag || v != 0) v++;
-            }else{
-                if(table[r][i] != -1 || i > maxRow){
-                    if(table[r][i-1] != -1) {blockOut++;}
-                    else emptyFlag = false;
-                    break;
-                }else{
-                    if(emptyFlag){
-                        if(table[r][i-1] == -1) emptyFlag = false;
-                        break;
-                    }else{
-                        if(s < 4) emptyFlag = true;
-                    }
-                }
-            }
-        }
-
-        return setRank(point, blockOut, emptyFlag, v, bot);
-    }
-    public int find3(int r, int c, int bot){
-        int point = 1, blockOut = 0, v = 0;
-        boolean emptyFlag = false;
-        for(int x = r-1, y = c-1, s = 1;  s <= 4 && x >=1 && y >=1; x--, y--, s++){
-            if(table[x][y] == bot){
-                point++;
-            }else{
-                if(table[x][y] != -1 || Math.min(x, y) < 1){
-                    if(table[x+1][y+1] != -1) {blockOut++;}
-                    else emptyFlag = false;
-                    break;
-                }else{
-                    if(emptyFlag){
-                        if(table[x+1][y+1] == -1) emptyFlag = false;
-                        break;
-                    }else{
-                        v = s-1;
-                        if(s < 4) emptyFlag = true;
-                    }
-                }
-            }
-        }
-        for(int x = r+1, y = c+1, s = 1;  s <= 4 && x<=16 && y<=16; x++, y++, s++){
-            if(table[x][y] == bot){
-                point++;
-                if(emptyFlag || v != 0) v++;
-            }else{
-                if(table[x][y] != -1 || Math.max(x, y) > maxRow){
-                    if(table[x-1][y-1] != -1) {blockOut++;}
-                    else emptyFlag = false;
-                    break;
-                }else{
-                    if(emptyFlag){
-                        if(table[x-1][y-1] == -1) emptyFlag = false;
-                        break;
-                    }else{
-                        if(s < 4) emptyFlag = true;
-                    }
-                }
-            }
-        }
-        return setRank(point, blockOut, emptyFlag, v, bot);
-    }
-    public int find4(int r, int c, int bot){
-        int point = 1, blockOut = 0, v = 0;
-        boolean emptyFlag = false;
-        for(int x = r-1, y = c+1, s = 1; s <= 4 && x>=1 && y<=16; x--, y++, s++){
-            if(table[x][y] == bot){
-                point++;
-            }else{
-                if(table[x][y] != -1 || Math.min(x, y) <1 || Math.max(x, y) > maxRow){
-                    if(table[x+1][y-1] != -1) {blockOut++;}
-                    else emptyFlag = false;
-                    break;
-                }else{
-                    if(emptyFlag){
-                        if(table[x+1][y-1] == -1) emptyFlag = false;
-                        break;
-                    }else{
-                        v = s-1;
-                        if(s < 4) emptyFlag = true;
-                    }
-                }
-            }
-        }
-        for(int x = r+1, y = c-1, s = 1; s <= 4 && y>=1 && x<=16; x++, y--, s++){
-            if(table[x][y] == bot){
-                point++;
-                if(emptyFlag || v != 0) v++;
-            }else{
-                if(table[x][y] != -1 || Math.min(x, y) < 1 || Math.max(x, y) > maxRow){
-                    if(table[x-1][y+1] != -1) {blockOut++;}
-                    else emptyFlag = false;
-                    break;
-                }else{
-                    if(emptyFlag){
-                        if(table[x-1][y+1] == -1) emptyFlag = false;
-                        break;
-                    }else{
-                        if(s < 4) emptyFlag = true;
-                    }
-                }
-            }
-        }
-        return setRank(point, blockOut, emptyFlag, v, bot);
-    }
-    public int setRank(int point, int blockOut, boolean emptyFlag, int v, int bot){
-//        if(Math.max(point-v, v) >= 5 && emptyFlag == false) return 7;
-        if(Math.max(point-v, v) >= 5 || (emptyFlag == false && point >= 5)) return 7;
-        if(point == 4 && blockOut == 0 && emptyFlag == false) return 6;
-        if(point == 3 && blockOut == 0){
-            if(bot == HUMAN){if(emptyFlag == false || v != 0) return 5;}
-            else return 5;
-        }
-        if((Math.max(v, point-v) == 4 && blockOut == 1) ||
-                (point >= 4 && (emptyFlag || blockOut == 1))) return 4;
-
-        if(point == 2){
-            if(bot == HUMAN){ if(!emptyFlag && blockOut == 0) return 2;}
-            else if(blockOut == 0)return 3;
-        }
-        if(point == 3 && blockOut == 1) return 3;
-        return 0;
-    }
-    public int sumAdjDef(Cell tmp){
-        int rt = 0, h[] = {-1, -1, -1, 0, 1, 1, 1, 0}, c[] = {-1, 0, 1, 1, 1, 0, -1, -1};
-        int x = tmp.getRow(), y = tmp.getColumn();
-        for(int i = 0; i < 8; i++){
-            if(Math.min(x+h[i], y+c[i]) >= 1 && Math.max(x+h[i], y+c[i]) <= maxRow){
-                rt += pd[x+h[i]][y+c[i]];
-            }
-        }
-        return rt;
+            else return cell;
     }
 }

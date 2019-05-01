@@ -17,12 +17,12 @@ public class AI1 {
     private int val ;
     Cell nextAttaxkOne;
     private int level;
-    BoardTable cur;
+    BoardValues cur;
     Cell maxCell = null;
     int maxWide = 100;
     long C = 0;
     public AI1(int[][] Cur,int level) {
-        this.cur = new BoardTable(Cur, 20, 20);
+        this.cur = new BoardValues(Cur, 20, 20);
         this.val = 1;
         this.level = level;
         maxWide = 3;
@@ -35,11 +35,11 @@ public class AI1 {
     }
 public  long try_Max(long alpha, long beta, int depth){
   //  cur.resetValue();
-     cur.caculator(val);
     long ret = cur.maxPoint().getValues();
-    if(depth == 0) return ret;
+    if(depth <= 0) return ret;
     else{
-        
+        cur.caculator(val);
+        ret = Long.MIN_VALUE;
         ArrayList<Cell> list = new ArrayList<>();
         for (int i = 0; i < maxWide; i++) {
 			Cell node = cur.maxPoint();
@@ -53,7 +53,7 @@ public  long try_Max(long alpha, long beta, int depth){
             cur.setPointBoardTable(run.getRow(), run.getColumn(), val);
             ret = Math.max(ret, try_Min( alpha,  beta,depth - 1));
             cur.setPointBoardTable(run.getRow(), run.getColumn(), -1);
-            if(ret > beta || cur.checkWin(run.getRow(), run.getColumn(), val)){
+            if(ret >= beta || cur.checkWin(run.getRow(), run.getColumn(), val)){
                 maxCell = run;
                 return ret;
             }
@@ -81,7 +81,7 @@ public  long try_Max(long alpha, long beta, int depth){
 }
 public  long try_Min(long alpha, long beta, int depth){
     long ret = cur.maxPoint().getValues();
-    if(depth == 0) return ret;
+    if(depth <= 0) return ret;
     else{
         ArrayList<Cell> list = new ArrayList<>();
         for (int i = 0; i < maxWide; i++) {
@@ -96,7 +96,7 @@ public  long try_Min(long alpha, long beta, int depth){
             cur.setPointBoardTable(run.getRow(), run.getColumn(), (val+1) % 2); 
             ret = Math.min(ret, try_Max( alpha, beta,depth - 1));
             cur.setPointBoardTable(run.getRow(), run.getColumn(), -1);
-            if(cur.checkWin(run.getRow(), run.getColumn(), (val+1)%2)){
+            if(ret <= alpha || cur.checkWin(run.getRow(), run.getColumn(), (val+1)%2)){
                 return ret;
             }
             beta = Math.min(beta, ret);
@@ -105,7 +105,7 @@ public  long try_Min(long alpha, long beta, int depth){
     }
 }
 public  Cell NexAtack(){
-    alphaBeta(0, 1,level);
+    alphaBeta(0, 1,level-2);
     return maxCell;
 }
 //    public static void main(String[] args) {
