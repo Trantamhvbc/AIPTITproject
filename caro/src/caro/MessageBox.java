@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 
 
 public class MessageBox {
+    boolean ischeck = false;
     public static void show(String message,String title){
         Stage stage = new Stage();
         stage.setTitle(title);
@@ -21,7 +22,6 @@ public class MessageBox {
         label.setFont(new Font(15));
         Button btn = new Button("Ok");
         btn.setOnAction(e -> stage.close());
-
         VBox pane = new VBox(20);
         pane.getChildren().addAll(label,btn);
         pane.setAlignment(Pos.CENTER);
@@ -29,5 +29,7 @@ public class MessageBox {
         Scene scene = new Scene(pane);
         stage.setScene(scene);
         stage.showAndWait();
+        
     }
+    
 }

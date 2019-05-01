@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.Random;
 
 public class Client extends Application {
+    boolean flag = true;
     private Stage stage;
     private double sceneWidth = 750;
     private double sceneHeight = 516;
@@ -189,7 +190,7 @@ public class Client extends Application {
             reader = new ObjectInputStream(socket.getInputStream());
             writer = new ObjectOutputStream(socket.getOutputStream());
             Thread t = new Thread(new InformationReader());
-            t.start();
+            start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -330,6 +331,193 @@ public class Client extends Application {
         }
         return -1;
     }
+      public Cell  findSuportOne(int row,int col,int val){
+        int n = 0;
+        int i = row;
+        int d = 0;
+        int run = 0;
+       while(i > 0 ){
+            if(table[i][col] == val ){
+                i --;
+                n ++;
+            }
+            else{
+                if(table[i][col] == -1){
+                    break;
+                }
+                else{
+                    d++;
+                    break;
+                }
+            }
+        }
+       i = row + 1;
+       //System.out.println(n);
+       while(i <= maxRow   ){
+            if(table[i][col] == val ){
+                i ++;
+                n ++;
+            }
+            else{
+                if(table[i][col] == -1){
+                    break;
+                }
+                else {
+                    d++;
+                    break;
+                }
+            }
+        }
+    return new Cell(n,d);
+    }
+    
+     public Cell  findSuportTwo(int row,int col,int val){
+       int n = 0;
+       int i =  col;
+       int d = 0;
+       long ret = 0;
+       while(i > 0 ){
+            if(table[row][i] == val ){
+                i --;
+                n ++;
+            }
+            else{
+                if(table[row][i] == -1){
+                    break;     
+                }
+                else {
+                    d++;
+                    break;
+                }
+            }
+        }
+        i = col + 1;
+       while(i <= maxCol ){
+ 
+            if(table[row][i] == val ){
+                i ++;
+                n ++;
+            }
+            else{
+                if(table[row][i] == -1){
+                    break;     
+                }
+                else {
+                    d++;
+                    break;
+                }
+            }
+        }
+    return new Cell(n,d);
+}
+    
+    public Cell findSuportThree(int row,int col,int val){
+       long ret = 0;
+       int n = 0;
+       int i =  0;
+       int d = 0;
+       while(row  - i > 0 && col - i > 0 ){
+            if(table[row  - i][ col - i] == val ){
+                i ++;
+                n ++;
+            }
+            else{
+                if(table[row  - i][ col - i] == -1){
+                   break;
+                }
+                else {
+                    d++;
+                    break;
+                }
+            }
+        }
+        i = 1;
+       while(row + i <= maxRow && col + i <= maxCol ){
+            if(table[row + i][col + i] == val ){
+                i ++;
+                n ++;
+            }
+            else{
+                if(table[row+ i][ col + i] == -1){
+                    break;
+                 
+                }
+                else {
+                    d++; break;
+                }
+            }
+        }
+     return new Cell(n,d);
+         // System.out.println(x1 );
+    }
+    
+    
+    public Cell  findSuportFor(int row,int col,int val){
+       long ret = 0;
+       int n = 0;
+       int i =  0;
+       int d = 0;
+       while(row - i > 0 && col + i <= maxCol  ){
+           //System.out.println( row - i);
+            if(table[row  - i][ col + i] == val ){
+                i ++;
+                n ++;
+            }
+            else{
+                if(table[row  - i][ col + i] == -1){
+                   break;
+                }
+                else{
+                    d++;
+                    break;
+                }
+            }
+        }
+         i =  1;
+       while(row + i <= maxRow && col - i > 0   ){
+            if(table[row + i][col - i] == val ){
+                i ++;
+                n ++;
+            }
+            else{
+                if(table[row+ i][ col - i] == -1){
+                    break;
+                }
+                else{
+                    d++;
+                    break;
+                }
+            }
+        }
+   return new Cell(n,d);
+ }
+    public  boolean checkWin(int row , int col,int val){
+    Cell C = findSuportOne(row, col, val);
+    if(C.getRow() == 5 && ( C.getColumn() == 1 || C.getColumn() == 0 )) return true;
+    C = findSuportTwo(row, col, val);
+    if(C.getRow() == 5 && ( C.getColumn() == 1 || C.getColumn() == 0 )) return true;
+     C = findSuportThree(row, col, val);
+    if(C.getRow() == 5 && ( C.getColumn() == 1 || C.getColumn() == 0 )) return true;
+     C = findSuportFor(row, col, val);
+    if(C.getRow() == 5 && ( C.getColumn() == 1 || C.getColumn() == 0 )) return true;
+    return false;
+}
+ public int checkEnd(){
+     int oki = 0;
+     for(int i = 1; i <= maxRow ; i++){
+         for(int j = 1; j <= maxCol ; j++){
+             if(table[i][j] != -1){
+                 oki = 1;
+                 if(checkWin(i, j, table[i][j])){
+                     return table[i][j];
+                }
+             }
+         }
+     }
+    if(oki == 1)
+        return -1;
+    else return -2;
+ }
     public void win(){
         id = (id+1)%2;
         Platform.runLater(() ->{
@@ -445,30 +633,62 @@ public class Client extends Application {
         stage.setScene(new Scene(paneMain));
     }
     public void chooseWithBot(int row,int col){
-        if(table[row][col] != -1){
-            MessageBox.show("This cell has been ticked","Please tick another");
-            return;
-        }
-        buttons[row][col].setGraphic(new ImageView("image/o.png"));
-        table[row][col] = HUMAN;
-        numberOfClickedButton++;
-        if(numberOfClickedButton >= 9){
-           if(checkWin() == 1){
-
-               MessageBox.show("You won","Result");
-               reset();
-               start();
-           }
-        }
-        botPlay();
-        if(numberOfClickedButton >= 9){
-            if(checkWin() == 0){
-
-                MessageBox.show("You loose","Result");
-                reset();
-                start();
+        if(flag){
+            if(table[row][col] != -1){
+                MessageBox.show("This cell has been ticked","Please tick another");
+                return;
             }
-        }
+            buttons[row][col].setGraphic(new ImageView("image/o.png"));
+            table[row][col] = HUMAN;
+            numberOfClickedButton++;
+            if(numberOfClickedButton >= 9){
+               if(checkEnd() == 0){
+                   flag = false;
+                   Stage stage = new Stage();
+                    stage.setTitle("Result");
+                    stage.setMinWidth(250);
+                    Label label = new Label();
+                    label.setText("You won");
+                    label.setFont(new Font(15));
+                    Button btn = new Button("Ok");
+                    btn.setOnAction(e -> messbtnaction(stage));
+                    VBox pane = new VBox(20);
+                    pane.getChildren().addAll(label,btn);
+                    pane.setAlignment(Pos.CENTER);
+                    pane.setPadding(new Insets(15));
+                    Scene scene = new Scene(pane);
+                    stage.setScene(scene);
+                    stage.showAndWait();
+               
+               }
+            }
+            botPlay();
+            if(numberOfClickedButton >= 9){
+                if(checkEnd() == 1){
+                    flag = false;
+                    Stage stage = new Stage();
+                    stage.setTitle("Result");
+                    stage.setMinWidth(250);
+                    Label label = new Label();
+                    label.setText("You lose");
+                    label.setFont(new Font(15));
+                    Button btn = new Button("Ok");
+                    btn.setOnAction(e -> messbtnaction(stage));
+                    VBox pane = new VBox(20);
+                    pane.getChildren().addAll(label,btn);
+                    pane.setAlignment(Pos.CENTER);
+                    pane.setPadding(new Insets(15));
+                    Scene scene = new Scene(pane);
+                    stage.setScene(scene);
+                    stage.showAndWait();
+                }
+            }
+     }
+}
+    public void messbtnaction(Stage stage){
+        stage.close();
+        reset();
+         start();
     }
     public void start(){
          Alert gameMode = new Alert(Alert.AlertType.CONFIRMATION);
@@ -478,18 +698,20 @@ public class Client extends Application {
         if(result.get() == ButtonType.CANCEL){
             botPlay();
         }
+        flag = true;
     
     }
     public void botPlay(){
-        Cell nm = findNextMove();
-        int row = nm.getRow(), col = nm.getColumn();
-        table[row][col] = BOT;
-        buttons[row][col].setGraphic(new ImageView("image/x.png"));
-        numberOfClickedButton++;
+        if(flag){
+            Cell nm = findNextMove();
+            int row = nm.getRow(), col = nm.getColumn();
+            table[row][col] = BOT;
+            buttons[row][col].setGraphic(new ImageView("image/x.png"));
+            numberOfClickedButton++;
+        }
     }
     public Cell findNextMove(){
-            AI1 A = new AI1(table, 6);
-           
+            AI1 A = new AI1(table, 10);
             Cell cell = A.NexAtack();    
             if(cell == null ){
                 System.out.println(111);
