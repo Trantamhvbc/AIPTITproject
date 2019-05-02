@@ -688,14 +688,14 @@ public class Client extends Application {
     public void messbtnaction(Stage stage){
         stage.close();
         reset();
-         start();
+        start();
     }
     public void start(){
-        flag = true;
-         Alert gameMode = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert gameMode = new Alert(Alert.AlertType.CONFIRMATION);
         gameMode.setTitle("Chọn người chơi trước");
         gameMode.setHeaderText("Bạn có muốn chơi trước không ?");
         Optional<ButtonType> result = gameMode.showAndWait();
+        flag = true;
         if(result.get() == ButtonType.CANCEL){
             botPlay();
         }
@@ -712,7 +712,7 @@ public class Client extends Application {
         }
     }
     public Cell findNextMove(){
-            AI1 A = new AI1(table, 10);
+            AI1 A = new AI1(table, 3);
             Cell cell = A.NexAtack();    
             if(cell == null ){
                 System.out.println(111);
