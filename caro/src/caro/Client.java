@@ -691,6 +691,7 @@ public class Client extends Application {
          start();
     }
     public void start(){
+        flag = true;
          Alert gameMode = new Alert(Alert.AlertType.CONFIRMATION);
         gameMode.setTitle("Chọn người chơi trước");
         gameMode.setHeaderText("Bạn có muốn chơi trước không ?");
@@ -698,7 +699,7 @@ public class Client extends Application {
         if(result.get() == ButtonType.CANCEL){
             botPlay();
         }
-        flag = true;
+    
     
     }
     public void botPlay(){
