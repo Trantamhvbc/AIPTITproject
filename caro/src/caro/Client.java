@@ -695,11 +695,14 @@ public class Client extends Application {
         gameMode.setTitle("Chọn người chơi trước");
         gameMode.setHeaderText("Bạn có muốn chơi trước không ?");
         Optional<ButtonType> result = gameMode.showAndWait();
-        flag = true;
         if(result.get() == ButtonType.CANCEL){
-            botPlay();
+            table[10][10] = BOT;
+            buttons[10][10].setGraphic(new ImageView("image/x.png"));
+            flag = true;
+            numberOfClickedButton++;
         }
-    
+        else
+            flag = true;
     
     }
     public void botPlay(){
@@ -712,7 +715,7 @@ public class Client extends Application {
         }
     }
     public Cell findNextMove(){
-            AI1 A = new AI1(table, 3);
+            AI1 A = new AI1(table, 6);
             Cell cell = A.NexAtack();    
             if(cell == null ){
                 System.out.println(111);

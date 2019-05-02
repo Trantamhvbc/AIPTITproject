@@ -25,7 +25,7 @@ public class AI1 {
         this.cur = new BoardValues(Cur, 20, 20);
         this.val = 1;
         this.level = level;
-        maxWide = 30;
+        maxWide = 10;
     }
     public void alphaBeta(long  alpha, long beta, int depth) {
 
@@ -104,7 +104,7 @@ public  long try_Min(long alpha, long beta, int depth){
     }
 }
 public  Cell NexAtack(){
-    alphaBeta(Long.MIN_VALUE, Long.MAX_VALUE,level);
+    alphaBeta(0, 1,level);
     return maxCell;
 }
 //    public static void main(String[] args) {
