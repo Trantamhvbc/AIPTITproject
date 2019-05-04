@@ -214,7 +214,7 @@ public class BoardValues {
    return new Cell(n,d);
  }
    
-public void  calRow(){
+public void  callRow(){
     for (int row = 1; row <= height; row++)
         for (int col = 1; col <= width - 4; col++) {
                 int x = 0;
@@ -236,7 +236,7 @@ public void  calRow(){
                                                 A[row][col + i] += thu[x][d]; // cho diem phong ng
                                         if (x == 0) // y khac 0
                                             A[row][col + i] += F[y][d];
-                                        if (x == 4 || y == 4)
+                                        if (x == 4 || y == 4 && d < 2)
                                                 A[row][col + i] *= 2;
                                 }
                         }
@@ -267,7 +267,7 @@ public void  callCollow(){
                                             A[row + i][col] +=thu[x][d]; // cho diem phong ng
                                     if (x == 0) // eHuman khac 0
                                         A[row + i][col] += F[y][d];
-                                    if (x == 4 || y == 4)
+                                    if (x == 4 || y == 4 && d < 2)
                                             A[row + i][col] *= 2;
                             }
                     }
@@ -297,7 +297,7 @@ public void  callCollow(){
                                                         A[row + i][col+ i] +=  thu[x][d]; // cho diem phong ng
                                                 if (x == 0) // eHuman khac 0
                                                     A[row + i][col+ i] += F[y][0];
-                                                if (x == 4 || y == 4)
+                                                if (x == 4 || y == 4 && d < 2)
                                                         A[row+ i][col + i] *= 2;
                                         }
                                 }
@@ -329,7 +329,7 @@ public void callCrossExtra(){
                                         A[row - i][col+ i] += thu[x][d]; // cho diem phong ng
                                 if (x == 0) // eHuman khac 0
                                     A[row - i][col+ i] += F[y][d];
-                                if (x == 4 || y == 4)
+                                if (x == 4 || y == 4 && d < 2)
                                         A[row - i][col + i] *= 2;
                         }
                 }             
@@ -378,13 +378,13 @@ public  boolean checkWin(int row , int col,int val){
  
  public void caculator(int val){
      resetValue();
-     calRow();
+     callRow();
      callCollow();
      callCrossExtra();
      callCrossMain();
  }
  public Cell  maxPoint(){
-     Cell cell = null;
+    Cell cell = null;
     int maxx = 1 ,maxy = 1;
     long S = Long.MIN_VALUE;
     for(int i = 1 ; i < 21 ; i++ )

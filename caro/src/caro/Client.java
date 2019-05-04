@@ -111,7 +111,6 @@ public class Client extends Application {
         isPlaying = false;
         buttons = new Button[maxRow+1][maxCol+1];
         numberOfClickedButton = 0;
-
         buildGUI();
         getConnection();
 
@@ -179,7 +178,7 @@ public class Client extends Application {
         for(int i=1;i<=maxRow;i++){
             for(int j=1;j<=maxCol;j++){
                 buttons[i][j] = new Button();
-                buttons[i][j].setPrefSize(50,50);
+                buttons[i][j].setPrefSize(100,100);
                 paneTable.add(buttons[i][j],j,i);
             }
         }
@@ -190,7 +189,7 @@ public class Client extends Application {
             reader = new ObjectInputStream(socket.getInputStream());
             writer = new ObjectOutputStream(socket.getOutputStream());
             Thread t = new Thread(new InformationReader());
-            start();
+           // startgame();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -214,8 +213,8 @@ public class Client extends Application {
                         numberOfClickedButton++;
                         Platform.runLater(() -> updateCellPicture(row,col));
                         if(numberOfClickedButton > 8){
-                            if(checkWin() == 1) win();
-                            else if(checkWin() == 0) loose();
+           //                 if(checkWin() == 1) win();
+         //                   else if(checkWin() == 0) loose();
                         }
                     }
                     if(object instanceof String){
@@ -250,86 +249,6 @@ public class Client extends Application {
         }
         else buttons[row][col].setText("O");
         
-    }
-    public int checkWin(){
-        if(numberOfClickedButton == 16*16){
-            tie();
-        }
-        int r1 = checkNgang();
-        int r2 = checkDoc();
-        int r3 = checkCheo1();
-        int r4 = checkCheo2();
-        if(r1 == id || r2 == id  || r3 == id || r4 == id){
-            return 1;
-        }
-        if(r1 == ((id+1)%2) || r2 == ((id+1)%2)  || r3 == ((id+1)%2) || r4 == ((id+1)%2)){
-            return 0;
-        }
-        return -1;
-    }
-    public int checkNgang(){
-        for(int i=1;i<=maxRow;i++){
-            for(int j=1;j<=maxCol- 4 ;j++){
-                int v = table[i][j];
-                if( v!= -1 && v == table[i][j+1] && v == table[i][j+2] && v == table[i][j+3] && v == table[i][j+4]) return v;
-            }
-        }
-        return -1;
-    }
-    public int checkDoc(){
-        for(int j=1;j<=maxCol;j++){
-            for(int i=1;i<= maxRow - 4;i++){
-                int v = table[i][j];
-                if( v!= -1 && v == table[i+1][j] && v == table[i+2][j] && v == table[i+3][j] && v == table[i+4][j]) return v;
-            }
-        }
-        return -1;
-    }
-    public int checkCheo1(){
-        int u = maxRow - 4;
-        while(u>0){
-            int i = u, j = 1;
-            while(i + 4 <= maxRow){
-                int x = table[i][j];
-                if(x != -1 && x == table[i+1][j+1] && x == table[i+2][j+2] && x == table[i+3][j+3] && x == table[i+4][j+4]) return x;
-                i++; j++;
-            }
-            u--;
-        }
-        int v = maxCol - 4;
-        while( v > 0){
-            int i = 1, j = v;
-            while(j + 4 <= maxCol){
-                int x = table[i][j];
-                if(x != -1 && x == table[i+1][j+1] && x == table[i+2][j+2] && x == table[i+3][j+3] && x == table[i+4][j+4]) return x;
-                i++; j++;
-            }
-            v--;
-        }
-        return -1;
-    }
-    public int checkCheo2(){
-        int u = maxRow - 4;
-        while(u > 0){
-            int i = u, j = maxCol;
-            while(i + 4 <= maxRow){
-                int x = table[i][j];
-                if(x != -1 && x == table[i+1][j-1] && x == table[i+2][j-2] && x == table[i+3][j-3] && x == table[i+4][j-4]) return x;
-                i++; j--;
-            }
-            u--;
-        }
-        int v = 5;
-        while(v <= maxCol){
-            int i = 1, j = v;
-            while(j - 4  > 0){
-                int x = table[i][j];
-                if(x != -1 && x == table[i+1][j-1] && x == table[i+2][j-2] && x == table[i+3][j-3] && x == table[i+4][j-4]) return x;
-                i++; j--;
-            }
-            v++;
-        }
-        return -1;
     }
       public Cell  findSuportOne(int row,int col,int val){
         int n = 0;
@@ -521,7 +440,6 @@ public class Client extends Application {
     public void win(){
         id = (id+1)%2;
         Platform.runLater(() ->{
-
             MessageBox.show("You won","Result");
             reset();
         });
@@ -594,7 +512,7 @@ public class Client extends Application {
         buttons = new Button[maxRow+2][maxCol+2];
         numberOfClickedButton = 0;
         buildGUIBot();
-        start();
+        startgame();
     }
     public void buildGUIBot(){
         createTable();
@@ -662,25 +580,27 @@ public class Client extends Application {
                
                }
             }
+            else{
             botPlay();
-            if(numberOfClickedButton >= 9){
-                if(checkEnd() == 1){
-                    flag = false;
-                    Stage stage = new Stage();
-                    stage.setTitle("Result");
-                    stage.setMinWidth(250);
-                    Label label = new Label();
-                    label.setText("You lose");
-                    label.setFont(new Font(15));
-                    Button btn = new Button("Ok");
-                    btn.setOnAction(e -> messbtnaction(stage));
-                    VBox pane = new VBox(20);
-                    pane.getChildren().addAll(label,btn);
-                    pane.setAlignment(Pos.CENTER);
-                    pane.setPadding(new Insets(15));
-                    Scene scene = new Scene(pane);
-                    stage.setScene(scene);
-                    stage.showAndWait();
+                if(numberOfClickedButton >= 9){
+                    if(checkEnd() == 1){
+                        flag = false;
+                        Stage stage = new Stage();
+                        stage.setTitle("Result");
+                        stage.setMinWidth(250);
+                        Label label = new Label();
+                        label.setText("You lose");
+                        label.setFont(new Font(15));
+                        Button btn = new Button("Ok");
+                        btn.setOnAction(e -> messbtnaction(stage));
+                        VBox pane = new VBox(20);
+                        pane.getChildren().addAll(label,btn);
+                        pane.setAlignment(Pos.CENTER);
+                        pane.setPadding(new Insets(15));
+                        Scene scene = new Scene(pane);
+                        stage.setScene(scene);
+                        stage.showAndWait();
+                    }
                 }
             }
      }
@@ -688,9 +608,9 @@ public class Client extends Application {
     public void messbtnaction(Stage stage){
         stage.close();
         reset();
-        start();
+        startgame();
     }
-    public void start(){
+    public void startgame(){
         Alert gameMode = new Alert(Alert.AlertType.CONFIRMATION);
         gameMode.setTitle("Chọn người chơi trước");
         gameMode.setHeaderText("Bạn có muốn chơi trước không ?");
@@ -715,7 +635,7 @@ public class Client extends Application {
         }
     }
     public Cell findNextMove(){
-            AI1 A = new AI1(table, 6);
+            AI1 A = new AI1(table, 10);
             Cell cell = A.NexAtack();    
             if(cell == null ){
                 System.out.println(111);
